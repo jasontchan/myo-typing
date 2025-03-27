@@ -1,0 +1,16 @@
+.connectButton {
+  background-color: #c0c0c0;
+  color: #000;
+  font-size: 16px;
+
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.connectButton:hover {
+  background-color: #adacac;
+}
