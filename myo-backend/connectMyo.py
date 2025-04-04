@@ -1,14 +1,23 @@
-from pyomyo import Myo, emg_mode
+# from pyomyo import Myo, emg_mode
+import sys
+
+sys.path.append("../")  # Add parent directory to path
+from pyomyo_main.src.pyomyo.pyomyo import Myo, emg_mode
+import time
 
 # ------------ Myo Setup ---------------
-MODE = emg_mode.PREPROCESSED
+MODE = emg_mode.RAW
 
 
-def worker(q):
+def worker(q, mac):
+    print("MAC", mac, flush=True)
     m = Myo(mode=MODE)
-    m.connect()
+    m.connect(input_address=mac)
 
     def add_to_queue(emg, movement):
+        curr_time = (time.time(),)
+        emg = emg + curr_time
+        print("EMG TUPLE", emg)
         q.put(emg)
 
     m.add_emg_handler(add_to_queue)
