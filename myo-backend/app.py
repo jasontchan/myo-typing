@@ -26,13 +26,13 @@ def start_connection():
     R_MAC = [193, 174, 37, 33, 189, 206]
     p_l = multiprocessing.Process(
         target=worker,
-        args=(q_l, L_MAC),
+        args=(q_l, L_MAC, "/dev/ttyACM1"),
     )
     p_l.start()
 
     p_r = multiprocessing.Process(
         target=worker,
-        args=(q_r, R_MAC),
+        args=(q_r, R_MAC, "/dev/ttyACM2"),
     )
     p_r.start()
     return jsonify({"success": True}), 200

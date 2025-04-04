@@ -9,9 +9,9 @@ import time
 MODE = emg_mode.RAW
 
 
-def worker(q, mac):
+def worker(q, mac, tty):
     print("MAC", mac, flush=True)
-    m = Myo(mode=MODE)
+    m = Myo(mode=MODE, tty=tty)
     m.connect(input_address=mac)
 
     def add_to_queue(emg, movement):
