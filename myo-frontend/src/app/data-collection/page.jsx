@@ -12,6 +12,7 @@ const robotoMono = Roboto_Mono({
 export default function DataCollectionPage() {
   const [inputData, setInputData] = useState([]); // array of { char: string, correct: boolean }
   const [recording, setRecording] = useState(false);
+  const [numIncorrect, setNumIncorrect] = useState(0);
   const recordingRef = useRef(false);
 
   const textPrompt = "the quick brown fox jumps over the lazy dog";
@@ -40,6 +41,9 @@ export default function DataCollectionPage() {
       const isCorrect = e.key === expectedChar;
 
       setInputData((prev) => [...prev, { char: e.key, correct: isCorrect }]);
+      if (!isCorrect) {
+        setNumIncorrect((prevCount) => prevCount + 1);
+      }
     }
   };
 
@@ -80,6 +84,18 @@ export default function DataCollectionPage() {
     );
     promptIndex++;
   }
+
+  useEffect(() => {
+    const numCorrect = inputData.filter((item) => item.correct).length;
+    if (numCorrect >= textPrompt.length) {
+      //we are done!
+      recordingRef.current = false; //edit
+      fetch("http://localhost:5001/end-recording").catch((err) =>
+        console.error("API error:", err)
+      );
+      return;
+    }
+  }, [inputData]);
 
   return (
     <div className={styles.datacollectionpage}>
