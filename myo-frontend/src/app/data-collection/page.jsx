@@ -2,7 +2,9 @@
 
 import styles from "../styling/datacollectionpage.module.css";
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Roboto_Mono } from "next/font/google";
+import { generate, count } from "random-words";
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -14,9 +16,11 @@ export default function DataCollectionPage() {
   const [recording, setRecording] = useState(false);
   const [numIncorrect, setNumIncorrect] = useState(0);
   const recordingRef = useRef(false);
+  const router = useRouter();
+  const [textPrompt, setTextPrompt] = useState(generate(4).join(" "));
+  const [nPrompts, setNPrompts] = useState(0);
 
-  const textPrompt = "the quick brown fox jumps over the lazy dog";
-
+  // const textPrompt = generate(5).join(" ");
   const handleKeyDown = (e) => {
     if (!recordingRef.current && e.key === "Enter") {
       setRecording(true);
@@ -26,6 +30,11 @@ export default function DataCollectionPage() {
         console.error("API error:", err)
       );
       return;
+    }
+    if (recordingRef.current && e.key === "Enter") {
+      setTextPrompt(generate(4).join(" "));
+      setNPrompts(nPrompts + 1);
+      setInputData([]);
     }
 
     if (!recordingRef.current) return;
@@ -86,13 +95,23 @@ export default function DataCollectionPage() {
   }
 
   useEffect(() => {
-    const numCorrect = inputData.filter((item) => item.correct).length;
-    if (numCorrect >= textPrompt.length) {
+    // const numCorrect = inputData.filter((item) => item.correct).length;
+    // if (numCorrect >= textPrompt.length) {
+    //   //we are done!
+    //   recordingRef.current = false; //edit
+    //   fetch("http://localhost:5001/end-recording").catch((err) =>
+    //     console.error("API error:", err)
+    //   );
+    //   router.push("/after-collection");
+    //   return;
+    // }
+    if (nPrompts >= 5) {
       //we are done!
       recordingRef.current = false; //edit
       fetch("http://localhost:5001/end-recording").catch((err) =>
         console.error("API error:", err)
       );
+      router.push("/after-collection");
       return;
     }
   }, [inputData]);

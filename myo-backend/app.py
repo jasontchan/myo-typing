@@ -1,12 +1,14 @@
 import multiprocessing
 import time
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
 from pynput import keyboard
 from pynput.keyboard import Controller, Key
 import h5py
 import numpy as np
+import json
+from datasets import load_dataset
 
 # import connection scripts
 from connectMyo import worker
@@ -19,7 +21,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.config["CORS_HEADERS"] = "Content-Type"
 
 
-DATA_STORAGE = "../data/jason_2025-4-7.h5"
+DATA_STORAGE = "../data/jason_2025-4-8/"
+SESSION_NUMBER = 1
 
 
 q_l = multiprocessing.Queue()
@@ -87,7 +90,9 @@ def recording_worker(q_l, q_r, recording):
         keyboard.release(Key.esc)
         listener.join()
         print(keystrokes)
-        with h5py.File(DATA_STORAGE, "w") as f:
+        with h5py.File(
+            DATA_STORAGE + "stream_" + str(SESSION_NUMBER) + ".h5", "w"
+        ) as f:
             f.create_dataset("left_emg", data=full_data_l)
             f.create_dataset("right_emg", data=full_data_r)
             string_dt = h5py.string_dtype(encoding="utf-8")
@@ -106,6 +111,10 @@ def start_connection():
     global p_l, p_r
     L_MAC = [16, 68, 221, 232, 61, 253]
     R_MAC = [193, 174, 37, 33, 189, 206]
+
+    dataset = load_dataset("openwebtext", split="train", trust_remote_code=True)
+    with open("../texts.txt", "w") as file:
+        file.write(dataset[:1000])
     p_l = multiprocessing.Process(
         target=worker,
         args=(q_l, L_MAC, "/dev/ttyACM1"),
@@ -155,6 +164,20 @@ def end_recording():
             jsonify({"success": False, "message": "no recording was ever started"}),
             200,
         )
+
+
+@app.route("/save-metadata", methods=["POST"])
+@cross_origin()
+def save_metadata():
+    print("HI")
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "no data"}), 400
+
+    print(data)
+    with open(DATA_STORAGE + "metadata_" + str(SESSION_NUMBER) + ".json", "w") as file:
+        json.dump(data, file, indent=4)  # indent makes the json more readable
+    return jsonify({"success": True}), 200
 
 
 if __name__ == "__main__":
