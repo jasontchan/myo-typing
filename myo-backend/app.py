@@ -8,7 +8,6 @@ from pynput.keyboard import Controller, Key
 import h5py
 import numpy as np
 import json
-from datasets import load_dataset
 
 # import connection scripts
 from connectMyo import worker
@@ -112,9 +111,6 @@ def start_connection():
     L_MAC = [16, 68, 221, 232, 61, 253]
     R_MAC = [193, 174, 37, 33, 189, 206]
 
-    dataset = load_dataset("openwebtext", split="train", trust_remote_code=True)
-    with open("../texts.txt", "w") as file:
-        file.write(dataset[:1000])
     p_l = multiprocessing.Process(
         target=worker,
         args=(q_l, L_MAC, "/dev/ttyACM1"),

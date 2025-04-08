@@ -4,6 +4,7 @@ import styles from "../styling/datacollectionpage.module.css";
 import React, { useEffect, useRef, useState } from "react";
 import { Roboto_Mono } from "next/font/google";
 import VirtualKeyboard from "../components/VirtualKeyboard";
+import { useRouter } from "next/navigation";
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -16,6 +17,7 @@ export default function FinishCollectionPage() {
   const [age, setAge] = useState("");
   const [nClips, setNClips] = useState("");
   const [sessionConditions, setSessionConditions] = useState("");
+  const router = useRouter();
 
   const saveMetadata = async (data) => {
     try {
@@ -45,6 +47,7 @@ export default function FinishCollectionPage() {
       "Key Mappings": keyMapping,
     };
     saveMetadata(metadata);
+    router.push("/end-page");
   };
 
   return (
