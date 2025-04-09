@@ -9,6 +9,9 @@ import h5py
 import numpy as np
 import json
 
+import os
+import shutil
+
 # import connection scripts
 from connectMyo import worker
 
@@ -20,8 +23,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.config["CORS_HEADERS"] = "Content-Type"
 
 
-DATA_STORAGE = "../data/jason_2025-4-8/"
-SESSION_NUMBER = 1
+DATA_STORAGE = "temp/"
 
 
 q_l = multiprocessing.Queue()
@@ -90,7 +92,8 @@ def recording_worker(q_l, q_r, recording):
         listener.join()
         print(keystrokes)
         with h5py.File(
-            DATA_STORAGE + "stream_" + str(SESSION_NUMBER) + ".h5", "w"
+            DATA_STORAGE + "stream.h5",
+            "w",
         ) as f:
             f.create_dataset("left_emg", data=full_data_l)
             f.create_dataset("right_emg", data=full_data_r)
@@ -102,6 +105,19 @@ def recording_worker(q_l, q_r, recording):
             f.create_dataset("keystrokes", data=keystroke_data)
 
     print("ENDED THE START API")
+
+
+@app.route("/create-folder", methods=["POST"])
+@cross_origin()
+def create_folder():
+    global DATA_STORAGE
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "no data"}), 400
+    os.makedirs("../data/" + str(data), exist_ok=True)
+    DATA_STORAGE = "../data/" + str(data) + "/"
+
+    return jsonify({"success": True}), 200
 
 
 @app.route("/start-connection", methods=["GET"])
@@ -165,14 +181,22 @@ def end_recording():
 @app.route("/save-metadata", methods=["POST"])
 @cross_origin()
 def save_metadata():
-    print("HI")
     data = request.get_json()
     if not data:
         return jsonify({"message": "no data"}), 400
 
     print(data)
-    with open(DATA_STORAGE + "metadata_" + str(SESSION_NUMBER) + ".json", "w") as file:
-        json.dump(data, file, indent=4)  # indent makes the json more readable
+    with open(
+        DATA_STORAGE + "metadata.json",
+        "w",
+    ) as file:
+        json.dump(data, file, indent=4)
+
+    # move stream data to folder
+    shutil.move(
+        "temp/stream.h5",
+        DATA_STORAGE + "stream.h5",
+    )
     return jsonify({"success": True}), 200
 
 

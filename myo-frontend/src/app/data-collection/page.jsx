@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Roboto_Mono } from "next/font/google";
 import { generate, count } from "random-words";
+import { useSearchParams } from "next/navigation";
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -19,6 +20,8 @@ export default function DataCollectionPage() {
   const router = useRouter();
   const [textPrompt, setTextPrompt] = useState(generate(4).join(" "));
   const [nPrompts, setNPrompts] = useState(0);
+  const searchParams = useSearchParams();
+  const nStages = searchParams.get("nStages");
 
   // const textPrompt = generate(5).join(" ");
   const handleKeyDown = (e) => {
@@ -105,7 +108,7 @@ export default function DataCollectionPage() {
     //   router.push("/after-collection");
     //   return;
     // }
-    if (nPrompts >= 5) {
+    if (nPrompts >= parseInt(nStages)) {
       //we are done!
       recordingRef.current = false; //edit
       fetch("http://localhost:5001/end-recording").catch((err) =>
