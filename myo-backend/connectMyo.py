@@ -17,7 +17,7 @@ def worker(q, mac, tty):
     def add_to_queue(emg, movement):
         curr_time = (time.time(),)
         emg = emg + curr_time
-        print("EMG TUPLE", emg)
+        # print("EMG TUP</LE", emg)
         q.put(emg)
 
     m.add_emg_handler(add_to_queue)
