@@ -22,6 +22,7 @@ export default function DataCollectionPage() {
   const [nPrompts, setNPrompts] = useState(0);
   const searchParams = useSearchParams();
   const nStages = searchParams.get("nStages");
+  const [nextPrompt, setNextPrompt] = useState(generate(4).join(" "));
 
   // const textPrompt = generate(5).join(" ");
   const handleKeyDown = (e) => {
@@ -33,11 +34,6 @@ export default function DataCollectionPage() {
         console.error("API error:", err)
       );
       return;
-    }
-    if (recordingRef.current && e.key === "Enter") {
-      setTextPrompt(generate(4).join(" "));
-      setNPrompts(nPrompts + 1);
-      setInputData([]);
     }
 
     if (!recordingRef.current) return;
@@ -57,6 +53,14 @@ export default function DataCollectionPage() {
         setNumIncorrect((prevCount) => prevCount + 1);
       }
     }
+    const numCorrect = inputData.filter((item) => item.correct).length;
+    if (recordingRef.current && numCorrect >= textPrompt.length) {
+      //TODO: CHANGE THIS CONDITION
+      setTextPrompt(nextPrompt);
+      setNPrompts(nPrompts + 1);
+      setInputData([]);
+      setNextPrompt(generate(4).join(" "));
+    }
   };
 
   useEffect(() => {
@@ -65,6 +69,7 @@ export default function DataCollectionPage() {
   }, [inputData]);
 
   const renderedText = [];
+  const previewText = nextPrompt;
 
   let promptIndex = 0;
 
@@ -122,7 +127,14 @@ export default function DataCollectionPage() {
   return (
     <div className={styles.datacollectionpage}>
       {!recording && "Press Enter to start recording session"}
-      <p className={robotoMono.className}>{renderedText}</p>
+      <div className={styles.promptArea}>
+        <p className={robotoMono.className} style={{ margin: 0 }}>
+          {renderedText}
+        </p>
+        <p className={robotoMono.className} style={{ margin: 0 }}>
+          {previewText}
+        </p>
+      </div>
     </div>
   );
 }

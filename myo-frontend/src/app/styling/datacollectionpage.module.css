@@ -7,6 +7,14 @@
   min-height: 100vh;
 }
 
+.promptArea {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
 .renderedtext {
   font-family: "Roboto";
 }

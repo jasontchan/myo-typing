@@ -3,8 +3,8 @@
 import styles from "../styling/datacollectionpage.module.css";
 import React, { useEffect, useRef, useState } from "react";
 import { Roboto_Mono } from "next/font/google";
-import VirtualKeyboard from "../components/VirtualKeyboard";
 import { useRouter } from "next/navigation";
+import KeyboardMapping from "../components/KeyboardMapping";
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -51,9 +51,9 @@ export default function FinishCollectionPage() {
   };
 
   return (
-    <div className={styles.datacollectionpage}>
+    <div className={styles.datacollectionpage} style={{ padding: "100px" }}>
       {"Finished Recording"}
-      <VirtualKeyboard keyMapping={keyMapping} setKeyMapping={setKeyMapping} />
+      <KeyboardMapping keyMapping={keyMapping} setKeyMapping={setKeyMapping} />
       <div style={{ display: "flex", flexDirection: "column", rowGap: "10px" }}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           Handedness
